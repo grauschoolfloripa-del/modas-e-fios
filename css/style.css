@@ -230,11 +230,13 @@ a { color: inherit; text-decoration: none; }
    ============================================================ */
 .hero {
   position: relative;
-  min-height: 100vh;
+  /* altura ~16:9 (a proporção do vídeo) → cover mostra a bolsa quase sem corte */
+  height: min(56.25vw, 90vh);
+  min-height: 540px;
   display: flex;
   align-items: center;
   overflow: hidden;
-  background: var(--croche-cru); /* fallback se o vídeo não carregar */
+  background: var(--cafe-escuro); /* moldura/fallback na cor da marca */
 }
 .hero-video {
   position: absolute;
@@ -242,6 +244,7 @@ a { color: inherit; text-decoration: none; }
   width: 100%;
   height: 100%;
   object-fit: cover;
+  object-position: center;
   z-index: 0;
 }
 /* Fallback / véu sobre o vídeo para legibilidade do texto */
@@ -281,9 +284,8 @@ a { color: inherit; text-decoration: none; }
 }
 .hero-scroll {
   position: absolute;
-  bottom: var(--sp-5);
-  left: 50%;
-  transform: translateX(-50%);
+  bottom: var(--sp-4);
+  right: var(--sp-5);
   z-index: 2;
   display: flex;
   flex-direction: column;
@@ -688,6 +690,29 @@ a { color: inherit; text-decoration: none; }
    RESPONSIVO
    ============================================================ */
 @media (max-width: 900px) {
+  /* HERO EMPILHADA: vídeo em faixa 16:9 (bolsa inteira) + texto abaixo */
+  .hero {
+    height: auto;
+    min-height: 0;
+    display: block;
+    padding-top: 76px;              /* espaço para o header fixo */
+    padding-bottom: var(--sp-6);
+    background: var(--cafe-escuro);
+  }
+  .hero-video {
+    position: relative;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16 / 9;           /* faixa na proporção do vídeo, sem corte */
+  }
+  .hero-bg { display: none; }       /* sem véu: texto vai sobre painel sólido */
+  .hero-inner {
+    position: relative;
+    padding: var(--sp-5) 0 0;
+    max-width: 100%;
+  }
+  .hero-scroll { display: none; }
+
   .nav {
     position: fixed;
     top: 76px; left: 0; right: 0;
