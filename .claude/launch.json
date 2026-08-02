@@ -4,8 +4,8 @@
     {
       "name": "modas-fios",
       "runtimeExecutable": "python3",
-      "runtimeArgs": ["-m", "http.server", "4173"],
-      "port": 4173
+      "runtimeArgs": ["-m", "http.server", "4175"],
+      "port": 4175
     }
   ]
 }

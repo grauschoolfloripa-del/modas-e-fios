@@ -226,19 +226,32 @@ a { color: inherit; text-decoration: none; }
 .nav-toggle.open span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
 
 /* ============================================================
-   HERO
+   CINE — palco de transição hero → kit (scroll-linked)
    ============================================================ */
-.hero {
+.cine {
   position: relative;
-  /* altura ~16:9 (a proporção do vídeo) → cover mostra a bolsa quase sem corte */
-  height: min(56.25vw, 90vh);
-  min-height: 540px;
-  display: flex;
-  align-items: center;
-  overflow: hidden;
-  background: var(--cafe-escuro); /* moldura/fallback na cor da marca */
+  height: 260vh;                 /* comprimento do scroll da transição */
+  background: var(--cafe-escuro);
 }
-.hero-video {
+.cine__pin {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow: hidden;
+  perspective: 1500px;           /* profundidade para o rotateX do recuo */
+}
+.cine__layer {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+  will-change: transform, opacity;
+}
+.cine__hero { display: flex; align-items: center; }
+.cine__kit  { display: flex; align-items: center; opacity: 0; }
+
+.hero-video,
+.kit-video {
   position: absolute;
   inset: 0;
   width: 100%;
@@ -246,6 +259,53 @@ a { color: inherit; text-decoration: none; }
   object-fit: cover;
   object-position: center;
   z-index: 0;
+}
+/* véu do kit para dar contraste ao rótulo */
+.cine__kit-scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background:
+    linear-gradient(90deg, rgba(45,31,22,0.60) 0%, rgba(45,31,22,0.20) 45%, transparent 80%),
+    linear-gradient(0deg, rgba(45,31,22,0.35) 0%, transparent 45%);
+}
+.cine__kit-caption {
+  position: relative;
+  z-index: 2;
+  color: var(--linho-branco);
+}
+.cine__kit-caption .eyebrow { color: var(--croche-cru); display: block; margin-bottom: var(--sp-3); }
+.cine__kit-title {
+  font-family: var(--font-display);
+  font-weight: 300;
+  font-size: clamp(44px, 8vw, 84px);
+  line-height: 1.0;
+  text-shadow: 0 2px 30px rgba(61, 43, 31, 0.35);
+}
+.cine__kit-title em { font-style: italic; color: var(--croche-cru); }
+
+/* indicador de scroll do palco */
+.cine__scroll {
+  position: absolute;
+  bottom: var(--sp-4);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-2);
+}
+.cine__scroll span:first-child {
+  font-size: 9px;
+  letter-spacing: var(--ls-eyebrow);
+  text-transform: uppercase;
+  color: var(--croche-cru);
+}
+.cine__scroll-line {
+  width: 1px; height: 44px;
+  background: linear-gradient(var(--fio-cobre), transparent);
+  animation: scrollPulse 2.4s ease-in-out infinite;
 }
 /* Fallback / véu sobre o vídeo para legibilidade do texto */
 .hero-bg {
@@ -282,30 +342,42 @@ a { color: inherit; text-decoration: none; }
   text-shadow: 0 1px 16px rgba(61, 43, 31, 0.3);
   margin-bottom: var(--sp-5);
 }
-.hero-scroll {
-  position: absolute;
-  bottom: var(--sp-4);
-  right: var(--sp-5);
-  z-index: 2;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--sp-2);
-}
-.hero-scroll span:first-child {
-  font-size: 9px;
-  letter-spacing: var(--ls-eyebrow);
-  text-transform: uppercase;
-  color: var(--croche-cru);
-}
-.hero-scroll-line {
-  width: 1px; height: 44px;
-  background: linear-gradient(var(--fio-cobre), transparent);
-  animation: scrollPulse 2.4s ease-in-out infinite;
-}
 @keyframes scrollPulse {
   0%, 100% { transform: scaleY(1); opacity: .9; transform-origin: top; }
   50% { transform: scaleY(0.5); opacity: .4; transform-origin: top; }
+}
+
+/* ============================================================
+   KIT — conteúdo após a transição (texto + CTA)
+   ============================================================ */
+.kit-content {
+  padding-block: var(--sp-7);
+  background: var(--linho-branco);
+}
+.kit-content-inner {
+  max-width: 620px;
+  margin: 0 auto;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-4);
+}
+.kit-reveal-text { color: var(--fio-escuro); font-size: 16px; }
+
+/* --- Revelação suave do conteúdo do kit (só com JS ativo) --- */
+html.js-reveal .reveal-on-scroll {
+  opacity: 0;
+  transform: translateY(40px);
+  transition:
+    opacity .8s cubic-bezier(.22, 1, .36, 1),
+    transform .8s cubic-bezier(.22, 1, .36, 1);
+  will-change: opacity, transform;
+}
+html.js-reveal .reveal-on-scroll:nth-of-type(2) { transition-delay: .12s; }
+html.js-reveal .reveal-on-scroll.is-visible {
+  opacity: 1;
+  transform: none;
 }
 
 /* ============================================================
@@ -690,28 +762,12 @@ a { color: inherit; text-decoration: none; }
    RESPONSIVO
    ============================================================ */
 @media (max-width: 900px) {
-  /* HERO EMPILHADA: vídeo em faixa 16:9 (bolsa inteira) + texto abaixo */
-  .hero {
-    height: auto;
-    min-height: 0;
-    display: block;
-    padding-top: 76px;              /* espaço para o header fixo */
-    padding-bottom: var(--sp-6);
-    background: var(--cafe-escuro);
-  }
-  .hero-video {
-    position: relative;
-    width: 100%;
-    height: auto;
-    aspect-ratio: 16 / 9;           /* faixa na proporção do vídeo, sem corte */
-  }
-  .hero-bg { display: none; }       /* sem véu: texto vai sobre painel sólido */
-  .hero-inner {
-    position: relative;
-    padding: var(--sp-5) 0 0;
-    max-width: 100%;
-  }
-  .hero-scroll { display: none; }
+  /* No mobile os vídeos usam 'contain' → a bolsa/cesta inteira aparece
+     (com moldura na cor da marca) durante a transição, sem corte. */
+  .hero-video,
+  .kit-video { object-fit: contain; background: var(--cafe-escuro); }
+  .hero-inner { padding-top: 90px; }
+  .cine__kit-caption { padding-top: 60px; }
 
   .nav {
     position: fixed;
@@ -751,4 +807,15 @@ a { color: inherit; text-decoration: none; }
 /* Acessibilidade */
 @media (prefers-reduced-motion: reduce) {
   * { animation: none !important; scroll-behavior: auto !important; transition: none !important; }
+  /* sem movimento: revela tudo imediatamente, sem transform */
+  html.js-reveal .reveal-on-scroll {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  /* colapsa o palco cinematográfico: dois vídeos empilhados, sem scroll-jack */
+  .cine { height: auto !important; }
+  .cine__pin { position: static !important; height: auto !important; }
+  .cine__layer { position: relative !important; opacity: 1 !important; transform: none !important; }
+  .cine__hero, .cine__kit { min-height: 60vh; }
+  .cine__scroll { display: none !important; }
 }

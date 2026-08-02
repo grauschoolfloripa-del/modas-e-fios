@@ -35,27 +35,60 @@
     </div>
   </header>
 
-  <!-- ================= HERO ================= -->
-  <section class="hero" id="hero">
-    <video class="hero-video" autoplay muted loop playsinline preload="auto" aria-hidden="true">
-      <source src="assets/hero-croche.mp4" type="video/mp4" />
-    </video>
-    <div class="hero-bg" aria-hidden="true"></div>
-    <div class="container hero-inner">
-      <p class="eyebrow hero-eyebrow">Atelier de Crochê · Florianópolis</p>
-      <h1 class="hero-title">
-        Feito à mão,<br /><em>feito pra você</em>
-      </h1>
-      <p class="hero-sub">
-        Uma nova coleção moldada entre a sofisticação do atelier e a leveza da vida
-        em Florianópolis. Cada peça nasce de tecidos cuidadosamente selecionados,
-        com acabamento artesanal e caimento pensado para o seu corpo.
-      </p>
-      <a href="#colecao" class="btn btn-solid">Ver Coleção</a>
+  <!-- ============ PALCO CINEMATOGRÁFICO: hero → kit (transição por scroll) ============ -->
+  <div class="cine" id="hero" data-cine>
+    <div class="cine__pin">
+
+      <!-- CAMADA 1 — vídeo da hero -->
+      <div class="cine__layer cine__hero" data-cine-hero>
+        <video class="hero-video" autoplay muted loop playsinline preload="auto" aria-hidden="true">
+          <source src="assets/hero-croche.mp4" type="video/mp4" />
+        </video>
+        <div class="hero-bg" aria-hidden="true"></div>
+        <div class="container hero-inner" data-cine-herotext>
+          <p class="eyebrow hero-eyebrow">Atelier de Crochê · Florianópolis</p>
+          <h1 class="hero-title">
+            Feito à mão,<br /><em>feito pra você</em>
+          </h1>
+          <p class="hero-sub">
+            Uma nova coleção moldada entre a sofisticação do atelier e a leveza da vida
+            em Florianópolis. Cada peça nasce de tecidos cuidadosamente selecionados,
+            com acabamento artesanal e caimento pensado para o seu corpo.
+          </p>
+          <a href="#colecao" class="btn btn-solid">Ver Coleção</a>
+        </div>
+      </div>
+
+      <!-- CAMADA 2 — vídeo do kit (emerge conforme o scroll) -->
+      <div class="cine__layer cine__kit" data-cine-kit>
+        <video class="kit-video" autoplay muted loop playsinline preload="auto" aria-hidden="true">
+          <source src="assets/kit-croche.mp4" type="video/mp4" />
+        </video>
+        <div class="cine__kit-scrim" aria-hidden="true"></div>
+        <div class="container cine__kit-caption" data-cine-kitcap>
+          <p class="eyebrow">Novidade · Enxoval de Bebê</p>
+          <h2 class="cine__kit-title">Kit Bebê<br /><em>em Crochê</em></h2>
+        </div>
+      </div>
+
+      <!-- indicador de scroll -->
+      <div class="cine__scroll" data-cine-cue aria-hidden="true">
+        <span>role para ver a transição</span>
+        <span class="cine__scroll-line"></span>
+      </div>
+
     </div>
-    <div class="hero-scroll" aria-hidden="true">
-      <span>rolar</span>
-      <span class="hero-scroll-line"></span>
+  </div>
+
+  <!-- Conteúdo do Kit (após a transição) -->
+  <section class="kit-content" id="kit-bebe">
+    <div class="container kit-content-inner">
+      <p class="kit-reveal-text reveal-on-scroll">
+        Cestas, mantas e peças delicadas feitas à mão, em fios naturais e cores
+        suaves — personalizadas com o nome do seu bebê. Um enxoval único, do
+        primeiro ponto ao último detalhe.
+      </p>
+      <a href="#contato" class="btn btn-solid reveal-on-scroll">Encomendar o Kit</a>
     </div>
   </section>
 
