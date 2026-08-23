@@ -584,8 +584,12 @@ html.js-reveal .reveal-on-scroll.is-visible {
   display: flex;
   align-items: center;
   justify-content: center;
-  background-size: cover;
+  background-size: contain;
+  background-repeat: no-repeat;
   background-position: center;
+}
+.product-img[style*="background-image"] {
+  background-color: var(--linho-branco);
 }
 .product-img--tote    { background: linear-gradient(150deg, var(--croche-cru), var(--fio-cobre)); }
 .product-img--vestido { background: linear-gradient(150deg, var(--fio-cobre), var(--terra-caju)); }
