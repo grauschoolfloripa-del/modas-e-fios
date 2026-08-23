@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 
 function YarnDivider({ soft }) {
@@ -13,11 +14,7 @@ function YarnDivider({ soft }) {
 }
 
 export default function Home() {
-  const [navOpen, setNavOpen] = useState(false);
-  const [headerShadow, setHeaderShadow] = useState(false);
   const [contactSent, setContactSent] = useState(false);
-  const [newsletterPlaceholder, setNewsletterPlaceholder] = useState("Seu e-mail");
-  const [newsletterSent, setNewsletterSent] = useState(false);
 
   const cineRef = useRef(null);
   const pinRef = useRef(null);
@@ -30,14 +27,6 @@ export default function Home() {
   const addRevealRef = (el) => {
     if (el && !revealRefs.current.includes(el)) revealRefs.current.push(el);
   };
-
-  /* ---- Header: sombra sutil ao rolar ---- */
-  useEffect(() => {
-    const onScroll = () => setHeaderShadow(window.scrollY > 20);
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
 
   /* ---- Revelação suave ao rolar (marca js-reveal p/ fallback sem JS) ---- */
   useEffect(() => {
@@ -135,8 +124,6 @@ export default function Home() {
     };
   }, []);
 
-  const closeNav = () => setNavOpen(false);
-
   const handleContactSubmit = (e) => {
     e.preventDefault();
     const form = e.currentTarget;
@@ -148,51 +135,8 @@ export default function Home() {
     setContactSent(true);
   };
 
-  const handleNewsletterSubmit = (e) => {
-    e.preventDefault();
-    const form = e.currentTarget;
-    if (!form.checkValidity()) {
-      form.reportValidity();
-      return;
-    }
-    form.reset();
-    setNewsletterSent(true);
-    setNewsletterPlaceholder("Inscrição confirmada! \u{1F90D}");
-  };
-
   return (
     <>
-      {/* ================= HEADER ================= */}
-      <header
-        className="site-header"
-        style={{ boxShadow: headerShadow ? "0 1px 24px rgba(61,43,31,0.08)" : "none" }}
-      >
-        <div className="container header-inner">
-          <a href="#" className="logo">
-            Modas <span className="logo-amp">&</span> Fios
-          </a>
-
-          <nav className={`nav${navOpen ? " open" : ""}`} aria-label="Navegação principal">
-            <a href="#servicos" onClick={closeNav}>Serviços</a>
-            <a href="#colecao" onClick={closeNav}>Coleção</a>
-            <a href="#sobre" onClick={closeNav}>Sobre Nós</a>
-            <a href="#contato" onClick={closeNav}>Contato</a>
-          </nav>
-
-          <div className="header-actions">
-            <a href="#contato" className="btn btn-outline btn-sm">Agendar Consulta</a>
-            <button
-              className={`nav-toggle${navOpen ? " open" : ""}`}
-              aria-label="Abrir menu"
-              aria-expanded={navOpen}
-              onClick={() => setNavOpen((v) => !v)}
-            >
-              <span></span><span></span><span></span>
-            </button>
-          </div>
-        </div>
-      </header>
-
       {/* ============ PALCO CINEMATOGRÁFICO: hero → kit (transição por scroll) ============ */}
       <div className="cine" id="hero" ref={cineRef}>
         <div className="cine__pin" ref={pinRef}>
@@ -273,7 +217,7 @@ export default function Home() {
               elegância — vestidos fluidos, blusas bordadas e conjuntos pensados para o
               calor e o ritmo de Floripa. Leveza na construção, precisão no caimento.
             </p>
-            <a href="#servicos" className="btn btn-outline btn-light">Explorar Coleção</a>
+            <Link href="/loja" className="btn btn-outline btn-light">Explorar Coleção</Link>
           </div>
         </div>
       </section>
@@ -344,11 +288,11 @@ export default function Home() {
               <p className="service-desc">Vestidos de noiva, madrinhas e formaturas.</p>
             </article>
 
-            <article className="service-item">
+            <Link href="/loja/curso-croche-iniciantes" className="service-item">
               <span className="service-icon">🧶</span>
               <h4 className="service-name">Aulas de Costura</h4>
               <p className="service-desc">Aprenda o ofício em turmas pequenas e práticas.</p>
-            </article>
+            </Link>
           </div>
         </div>
       </section>
@@ -362,7 +306,7 @@ export default function Home() {
           </div>
 
           <div className="products-grid">
-            <article className="product-card">
+            <Link href="/loja/bolsa-tote-croche" className="product-card">
               <div className="product-img product-img--tote">
                 <span className="product-emoji">🧶</span>
                 <span className="product-tag">Verão 25</span>
@@ -371,9 +315,9 @@ export default function Home() {
                 <h4 className="product-name">Bolsa Tote Crochê</h4>
                 <p className="product-price">R$ 189,00</p>
               </div>
-            </article>
+            </Link>
 
-            <article className="product-card">
+            <Link href="/loja/vestido-linho-croche" className="product-card">
               <div className="product-img product-img--vestido">
                 <span className="product-emoji">🌿</span>
                 <span className="product-tag">Sob Medida</span>
@@ -382,9 +326,9 @@ export default function Home() {
                 <h4 className="product-name">Vestido Linho Crochê</h4>
                 <p className="product-price">R$ 480,00</p>
               </div>
-            </article>
+            </Link>
 
-            <article className="product-card">
+            <Link href="/loja/top-rendado-natural" className="product-card">
               <div className="product-img product-img--top">
                 <span className="product-emoji">🤍</span>
                 <span className="product-tag">Edição Limitada</span>
@@ -393,7 +337,11 @@ export default function Home() {
                 <h4 className="product-name">Top Rendado Natural</h4>
                 <p className="product-price">R$ 220,00</p>
               </div>
-            </article>
+            </Link>
+          </div>
+
+          <div className="catalog-view-all">
+            <Link href="/loja" className="link-arrow">Ver loja completa</Link>
           </div>
         </div>
       </section>
@@ -441,7 +389,7 @@ export default function Home() {
           <div className="quick-col">
             <h5 className="quick-title">Portfólio</h5>
             <p className="quick-text">Explore os trabalhos da nossa coleção.</p>
-            <a href="#colecao" className="link-arrow link-arrow--sm">Ver peças</a>
+            <Link href="/loja" className="link-arrow link-arrow--sm">Ver peças</Link>
           </div>
           <div className="quick-col">
             <h5 className="quick-title">Imprensa</h5>
@@ -483,44 +431,6 @@ export default function Home() {
           </form>
         </div>
       </section>
-
-      {/* ================= FOOTER ================= */}
-      <footer className="site-footer">
-        <div className="container footer-inner">
-          <div className="footer-brand">
-            <p className="footer-logo">Modas <span className="logo-amp">&</span> Fios</p>
-            <p className="footer-tagline">Atelier de Crochê · Florianópolis</p>
-          </div>
-
-          <div className="footer-newsletter">
-            <p className="eyebrow">Newsletter</p>
-            <p className="newsletter-text">
-              Receba novidades, lançamentos e dicas de moda diretamente no seu e-mail.
-            </p>
-            <form className="newsletter-form" noValidate onSubmit={handleNewsletterSubmit}>
-              <input
-                type="email"
-                placeholder={newsletterPlaceholder}
-                aria-label="Seu e-mail"
-                required
-                disabled={newsletterSent}
-              />
-              <button type="submit" className="btn btn-solid btn-sm">Inscrever</button>
-            </form>
-          </div>
-        </div>
-
-        <div className="container footer-bottom">
-          <nav className="footer-links" aria-label="Links do rodapé">
-            <a href="#contato">Contato</a>
-            <a href="#">Instagram</a>
-            <a href="#">Perguntas Frequentes</a>
-            <a href="#">Política de Privacidade</a>
-            <a href="#">Termos de Uso</a>
-          </nav>
-          <p className="footer-copy">© 2025 Modas e Fios · Florianópolis, SC.</p>
-        </div>
-      </footer>
     </>
   );
 }
