@@ -30,6 +30,9 @@ export default async function ProductPage({ params }) {
     <section className="contact catalog-detail">
       <div className="container contact-grid">
         <div className="contact-intro">
+          {item.coverImageUrl && (
+            <img src={item.coverImageUrl} alt={item.title} className="catalog-detail-cover" />
+          )}
           <p className="eyebrow">{isCourse ? "Curso" : "Peça"} · {item.tagline}</p>
           <h1 className="contact-title">{item.title}</h1>
           <p className="contact-text catalog-detail-price">{formatPrice(item.price)}</p>

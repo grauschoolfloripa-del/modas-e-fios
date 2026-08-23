@@ -1,8 +1,14 @@
-import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
+
+function formatBytes(bytes) {
+  if (!bytes) return "";
+  const mb = bytes / (1024 * 1024);
+  if (mb < 1024) return `${mb.toFixed(1)} MB`;
+  return `${(mb / 1024).toFixed(2)} GB`;
+}
 
 export default async function CursoPage({ params }) {
   const { slug } = await params;
@@ -16,7 +22,7 @@ export default async function CursoPage({ params }) {
 
   const { data: product } = await supabase
     .from("products")
-    .select("id, title, type")
+    .select("id, title, description, cover_image_url")
     .eq("slug", slug)
     .eq("type", "curso")
     .single();
@@ -32,19 +38,11 @@ export default async function CursoPage({ params }) {
   const expired = enrollment?.expires_at && new Date(enrollment.expires_at) < new Date();
   if (!enrollment || expired) redirect(`/loja/${slug}`);
 
-  const { data: modules } = await supabase
-    .from("modules")
-    .select("id, title, position, lessons(id, title, position, duration_seconds)")
+  const { data: files } = await supabase
+    .from("product_files")
+    .select("id, title, file_size_bytes")
     .eq("product_id", product.id)
-    .order("position");
-
-  const { data: progressRows } = await supabase
-    .from("progress")
-    .select("lesson_id, completed")
-    .eq("user_id", user.id);
-  const doneSet = new Set((progressRows || []).filter((p) => p.completed).map((p) => p.lesson_id));
-
-  const hasLessons = modules && modules.some((m) => m.lessons?.length > 0);
+    .order("created_at");
 
   return (
     <section className="contact course-player">
@@ -54,31 +52,32 @@ export default async function CursoPage({ params }) {
           <h1 className="section-title">{product.title}</h1>
         </div>
 
-        {!hasLessons ? (
-          <p className="contact-text">
-            O conteúdo deste curso ainda está em produção — as aulas aparecem aqui assim
-            que forem publicadas. Você já garantiu seu acesso. 🤍
-          </p>
+        {product.cover_image_url && (
+          <img src={product.cover_image_url} alt="" className="course-cover" />
+        )}
+
+        {product.description && <p className="contact-text">{product.description}</p>}
+
+        <h3>Arquivos para download</h3>
+        {files && files.length > 0 ? (
+          <ul className="course-download-list">
+            {files.map((f) => (
+              <li key={f.id}>
+                <div>
+                  <span className="course-download-title">{f.title}</span>
+                  <span className="course-download-size">{formatBytes(f.file_size_bytes)}</span>
+                </div>
+                <a href={`/api/download/${f.id}`} className="btn btn-outline btn-sm">
+                  Baixar
+                </a>
+              </li>
+            ))}
+          </ul>
         ) : (
-          (modules || []).map((mod) => (
-            <div key={mod.id} className="course-module">
-              <h3>{mod.title}</h3>
-              <ul className="course-lesson-list">
-                {(mod.lessons || [])
-                  .sort((a, b) => a.position - b.position)
-                  .map((lesson) => (
-                    <li key={lesson.id}>
-                      <Link href={`/cursos/${slug}/${lesson.id}`}>
-                        <span className={doneSet.has(lesson.id) ? "course-lesson-done" : ""}>
-                          {doneSet.has(lesson.id) ? "✓ " : ""}
-                          {lesson.title}
-                        </span>
-                      </Link>
-                    </li>
-                  ))}
-              </ul>
-            </div>
-          ))
+          <p className="contact-text">
+            O conteúdo deste curso ainda está em produção — os arquivos aparecem aqui assim
+            que forem publicados. Você já garantiu seu acesso. 🤍
+          </p>
         )}
       </div>
     </section>

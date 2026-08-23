@@ -24,8 +24,11 @@ export default async function LojaPage() {
               href={`/loja/${item.slug}`}
               className="product-card catalog-card"
             >
-              <div className={`product-img ${item.coverClass}`}>
-                <span className="product-emoji">{item.emoji}</span>
+              <div
+                className={`product-img ${item.coverImageUrl ? "" : item.coverClass}`}
+                style={item.coverImageUrl ? { backgroundImage: `url(${item.coverImageUrl})` } : undefined}
+              >
+                {!item.coverImageUrl && <span className="product-emoji">{item.emoji}</span>}
                 <span className="product-tag">{item.tagline}</span>
                 {item.type === "curso" && (
                   <span className="catalog-type-badge">Curso</span>

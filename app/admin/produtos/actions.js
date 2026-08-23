@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 
 async function requireAdmin() {
   const supabase = await createClient();
@@ -13,7 +14,7 @@ async function requireAdmin() {
   if (!user) throw new Error("Não autenticado.");
   const { data: profile } = await supabase.from("profiles").select("role").eq("id", user.id).single();
   if (profile?.role !== "admin") throw new Error("Sem permissão.");
-  return supabase;
+  return { supabase, userId: user.id };
 }
 
 function slugify(text) {
@@ -26,12 +27,13 @@ function slugify(text) {
 }
 
 export async function saveProduct(prevState, formData) {
-  let supabase;
+  let ctx;
   try {
-    supabase = await requireAdmin();
+    ctx = await requireAdmin();
   } catch (e) {
     return { error: e.message };
   }
+  const { supabase } = ctx;
 
   const id = String(formData.get("id") || "");
   const title = String(formData.get("title") || "").trim();
@@ -46,6 +48,7 @@ export async function saveProduct(prevState, formData) {
   const accessDurationDays =
     accessType === "periodo" ? parseInt(formData.get("accessDurationDays"), 10) || null : null;
   const published = formData.get("published") === "on";
+  const coverImageFile = formData.get("coverImage");
 
   if (!title) return { error: "Informe o título." };
   if (!slug) slug = slugify(title);
@@ -69,6 +72,31 @@ export async function saveProduct(prevState, formData) {
     updated_at: new Date().toISOString(),
   };
 
+  // upload da capa, se uma imagem nova foi selecionada
+  if (coverImageFile && coverImageFile.size > 0) {
+    const admin = createAdminClient();
+    if (!admin) return { error: "Erro interno de configuração (storage)." };
+
+    if (coverImageFile.size > 8 * 1024 * 1024) {
+      return { error: "A imagem de capa deve ter até 8MB." };
+    }
+
+    const ext = (coverImageFile.name.split(".").pop() || "jpg").toLowerCase();
+    const path = `${slug}-${Date.now()}.${ext}`;
+    const bytes = await coverImageFile.arrayBuffer();
+
+    const { error: uploadError } = await admin.storage
+      .from("product-covers")
+      .upload(path, bytes, { contentType: coverImageFile.type, upsert: false });
+
+    if (uploadError) {
+      return { error: "Falha ao enviar a imagem de capa." };
+    }
+
+    const { data: pub } = admin.storage.from("product-covers").getPublicUrl(path);
+    payload.cover_image_url = pub.publicUrl;
+  }
+
   let error;
   if (id) {
     ({ error } = await supabase.from("products").update(payload).eq("id", id));
@@ -87,8 +115,68 @@ export async function saveProduct(prevState, formData) {
 }
 
 export async function togglePublished(id, published) {
-  const supabase = await requireAdmin();
+  const { supabase } = await requireAdmin();
   await supabase.from("products").update({ published: !published }).eq("id", id);
   revalidatePath("/admin/produtos");
   revalidatePath("/loja");
+}
+
+/**
+ * Fluxo de upload de arquivo de curso (vídeo completo, materiais):
+ * o navegador do admin envia o arquivo DIRETO pro Supabase Storage,
+ * sem passar pelo servidor do site — evita limite de tamanho da Vercel.
+ *
+ * 1. createUploadTarget()  -> gera uma URL assinada de upload
+ * 2. o navegador faz o upload direto para essa URL
+ * 3. confirmFileUpload()   -> registra o arquivo na tabela product_files
+ */
+export async function createUploadTarget(productId, fileName) {
+  await requireAdmin();
+  const admin = createAdminClient();
+  if (!admin) return { error: "Erro interno de configuração (storage)." };
+
+  const safeName = fileName.replace(/[^a-zA-Z0-9._-]/g, "_");
+  const path = `${productId}/${Date.now()}-${safeName}`;
+
+  const { data, error } = await admin.storage.from("course-files").createSignedUploadUrl(path);
+  if (error) return { error: "Não foi possível iniciar o envio." };
+
+  return { signedUrl: data.signedUrl, token: data.token, path };
+}
+
+export async function confirmFileUpload(productId, path, title, sizeBytes, contentType) {
+  const { supabase } = await requireAdmin();
+  const { data, error } = await supabase
+    .from("product_files")
+    .insert({
+      product_id: productId,
+      title,
+      storage_path: path,
+      file_size_bytes: sizeBytes,
+      content_type: contentType,
+    })
+    .select("id")
+    .single();
+  if (error) return { error: "Falha ao registrar o arquivo." };
+
+  revalidatePath(`/admin/produtos/${productId}`);
+  return { success: true, id: data.id };
+}
+
+export async function deleteProductFile(fileId, productId) {
+  const { supabase } = await requireAdmin();
+  const admin = createAdminClient();
+
+  const { data: file } = await supabase
+    .from("product_files")
+    .select("storage_path")
+    .eq("id", fileId)
+    .single();
+
+  if (file && admin) {
+    await admin.storage.from("course-files").remove([file.storage_path]);
+  }
+  await supabase.from("product_files").delete().eq("id", fileId);
+
+  revalidatePath(`/admin/produtos/${productId}`);
 }
