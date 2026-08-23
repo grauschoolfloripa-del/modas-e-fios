@@ -27,27 +27,25 @@ export default async function ProductPage({ params }) {
 
   return (
     <section className="contact catalog-detail">
-      <div className="container contact-grid">
-        <div className="contact-intro">
-          {item.coverImageUrl && (
-            <img src={item.coverImageUrl} alt={item.title} className="catalog-detail-cover" />
-          )}
-          <p className="eyebrow">{isCourse ? "Curso" : "Peça"} · {item.tagline}</p>
-          <h1 className="contact-title">{item.title}</h1>
-          <p className="contact-text catalog-detail-price">{formatPrice(item.price)}</p>
+      <div className="container catalog-detail-inner">
+        {item.coverImageUrl && (
+          <img src={item.coverImageUrl} alt={item.title} className="catalog-detail-cover" />
+        )}
+        <p className="eyebrow">{isCourse ? "Curso" : "Peça"} · {item.tagline}</p>
+        <h1 className="contact-title">{item.title}</h1>
+        <p className="contact-text catalog-detail-price">{formatPrice(item.price)}</p>
 
-          {item.description.map((paragraph, i) => (
-            <p className="contact-text" key={i}>{paragraph}</p>
-          ))}
+        {item.description.map((paragraph, i) => (
+          <p className="contact-text" key={i}>{paragraph}</p>
+        ))}
 
-          {isCourse && (
-            <p className="catalog-access-note">
-              Acesso {item.accessType === "periodo" ? "por período" : "vitalício"} após a compra.
-            </p>
-          )}
-        </div>
+        {isCourse && (
+          <p className="catalog-access-note">
+            Acesso {item.accessType === "periodo" ? "por período" : "vitalício"} após a compra.
+          </p>
+        )}
 
-        <div>
+        <div className="catalog-detail-cta">
           {forSale ? (
             <BuyButton productSlug={item.slug} />
           ) : (

@@ -909,6 +909,17 @@ html.js-reveal .reveal-on-scroll.is-visible {
   color: var(--linho-branco);
   padding: 5px 11px;
 }
+.catalog-detail-inner {
+  max-width: 640px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+.catalog-detail-inner .catalog-detail-cover { margin-bottom: var(--sp-5); }
+.catalog-detail-inner .eyebrow { margin-bottom: var(--sp-2); }
+.catalog-detail-inner .contact-title { margin-bottom: var(--sp-2); }
 .catalog-detail-price {
   font-family: var(--font-display);
   font-size: 24px;
@@ -916,15 +927,25 @@ html.js-reveal .reveal-on-scroll.is-visible {
   margin-bottom: var(--sp-4) !important;
 }
 .catalog-access-note {
-  font-size: 13px;
-  color: var(--muted, var(--fio-escuro));
-  border-left: 2px solid var(--fio-cobre);
-  padding-left: var(--sp-3);
+  display: inline-block;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  color: var(--terra-caju);
+  border: 1px solid var(--fio-cobre);
+  padding: 6px 14px;
+  margin-top: var(--sp-2);
 }
 .catalog-form-intro {
   font-size: 14px;
   color: var(--fio-escuro);
   margin-bottom: var(--sp-4);
+}
+.catalog-detail-cta {
+  width: 100%;
+  max-width: 420px;
+  margin-top: var(--sp-6);
+  padding-top: var(--sp-5);
+  border-top: var(--border-thin);
 }
 .form-note--error { color: #93392C; }
 .catalog-view-all {
