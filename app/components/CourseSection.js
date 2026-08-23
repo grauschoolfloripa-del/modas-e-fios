@@ -26,11 +26,13 @@ export default function CourseSection({ course }) {
           {course.coverImageUrl ? (
             <img src={course.coverImageUrl} alt={course.title} />
           ) : (
-            <div className={`course-promo-fallback ${course.coverClass || "product-img--tote"}`}>
-              <span>{course.emoji}</span>
-            </div>
+            <>
+              <div className={`course-promo-fallback ${course.coverClass || "product-img--tote"}`}>
+                <span>{course.emoji}</span>
+              </div>
+              <span className="course-promo-badge">Curso Online</span>
+            </>
           )}
-          <span className="course-promo-badge">Curso Online</span>
         </div>
 
         <div className="course-promo-body">

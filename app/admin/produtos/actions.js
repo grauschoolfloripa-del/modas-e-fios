@@ -49,7 +49,7 @@ export async function saveProduct(prevState, formData) {
     accessType === "periodo" ? parseInt(formData.get("accessDurationDays"), 10) || null : null;
   const published = formData.get("published") === "on";
   const saleMode = String(formData.get("saleMode") || "venda");
-  const coverImageFile = formData.get("coverImage");
+  const coverImageUrl = String(formData.get("coverImageUrl") || "").trim();
 
   if (!title) return { error: "Informe o título." };
   if (!slug) slug = slugify(title);
@@ -74,29 +74,10 @@ export async function saveProduct(prevState, formData) {
     updated_at: new Date().toISOString(),
   };
 
-  // upload da capa, se uma imagem nova foi selecionada
-  if (coverImageFile && coverImageFile.size > 0) {
-    const admin = createAdminClient();
-    if (!admin) return { error: "Erro interno de configuração (storage)." };
-
-    if (coverImageFile.size > 8 * 1024 * 1024) {
-      return { error: "A imagem de capa deve ter até 8MB." };
-    }
-
-    const ext = (coverImageFile.name.split(".").pop() || "jpg").toLowerCase();
-    const path = `${slug}-${Date.now()}.${ext}`;
-    const bytes = await coverImageFile.arrayBuffer();
-
-    const { error: uploadError } = await admin.storage
-      .from("product-covers")
-      .upload(path, bytes, { contentType: coverImageFile.type, upsert: false });
-
-    if (uploadError) {
-      return { error: "Falha ao enviar a imagem de capa." };
-    }
-
-    const { data: pub } = admin.storage.from("product-covers").getPublicUrl(path);
-    payload.cover_image_url = pub.publicUrl;
+  // a capa já foi enviada direto pro Storage pelo navegador (ver
+  // createCoverUploadTarget) — aqui só gravamos a URL pública resultante
+  if (coverImageUrl) {
+    payload.cover_image_url = coverImageUrl;
   }
 
   let error;
@@ -121,6 +102,27 @@ export async function togglePublished(id, published) {
   await supabase.from("products").update({ published: !published }).eq("id", id);
   revalidatePath("/admin/produtos");
   revalidatePath("/loja");
+}
+
+/**
+ * Upload da imagem de capa — mesmo princípio dos arquivos de curso:
+ * o navegador envia direto pro Storage, sem passar pelo servidor do
+ * site. Isso evita o limite de 1MB que o Next.js aplica por padrão a
+ * uploads via Server Action, que quebrava com imagens de anúncio maiores.
+ */
+export async function createCoverUploadTarget(fileName) {
+  await requireAdmin();
+  const admin = createAdminClient();
+  if (!admin) return { error: "Erro interno de configuração (storage)." };
+
+  const safeName = fileName.replace(/[^a-zA-Z0-9._-]/g, "_");
+  const path = `${Date.now()}-${safeName}`;
+
+  const { data, error } = await admin.storage.from("product-covers").createSignedUploadUrl(path);
+  if (error) return { error: "Não foi possível iniciar o envio." };
+
+  const { data: pub } = admin.storage.from("product-covers").getPublicUrl(path);
+  return { signedUrl: data.signedUrl, token: data.token, path, publicUrl: pub.publicUrl };
 }
 
 /**

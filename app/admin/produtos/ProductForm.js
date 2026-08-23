@@ -1,7 +1,8 @@
 "use client";
 
-import { useActionState, useState } from "react";
-import { saveProduct } from "./actions";
+import { useActionState, useRef, useState } from "react";
+import { saveProduct, createCoverUploadTarget } from "./actions";
+import { createClient } from "@/lib/supabase/client";
 import CourseFilesManager from "./CourseFilesManager";
 
 export default function ProductForm({ product, initialFiles }) {
@@ -9,6 +10,44 @@ export default function ProductForm({ product, initialFiles }) {
   const [type, setType] = useState(product?.type || "produto");
   const [accessType, setAccessType] = useState(product?.access_type || "vitalicio");
   const [coverPreview, setCoverPreview] = useState(product?.cover_image_url || null);
+  const [coverImageUrl, setCoverImageUrl] = useState(product?.cover_image_url || "");
+  const [coverUploading, setCoverUploading] = useState(false);
+  const [coverError, setCoverError] = useState("");
+  const coverInputRef = useRef(null);
+
+  async function handleCoverSelect(e) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    e.target.value = "";
+    setCoverError("");
+
+    if (file.size > 10 * 1024 * 1024) {
+      setCoverError("A imagem deve ter até 10MB.");
+      return;
+    }
+
+    setCoverPreview(URL.createObjectURL(file));
+    setCoverUploading(true);
+    try {
+      const target = await createCoverUploadTarget(file.name);
+      if (target.error) throw new Error(target.error);
+
+      const supabase = createClient();
+      if (!supabase) throw new Error("Supabase não configurado.");
+
+      const { error: uploadError } = await supabase.storage
+        .from("product-covers")
+        .uploadToSignedUrl(target.path, target.token, file);
+      if (uploadError) throw new Error("Falha ao enviar a imagem.");
+
+      setCoverImageUrl(target.publicUrl);
+    } catch (err) {
+      setCoverError(err.message || "Erro ao enviar a imagem.");
+      setCoverPreview(product?.cover_image_url || null);
+    } finally {
+      setCoverUploading(false);
+    }
+  }
 
   return (
     <>
@@ -59,21 +98,30 @@ export default function ProductForm({ product, initialFiles }) {
         </div>
 
         <div className="field">
-          <label htmlFor="coverImage">Imagem de capa (foto real do produto/curso)</label>
+          <label htmlFor="coverImage">Imagem de capa (foto ou arte do produto/curso)</label>
+          <input type="hidden" name="coverImageUrl" value={coverImageUrl} />
           {coverPreview && (
             <img src={coverPreview} alt="" className="admin-cover-preview" />
           )}
           <input
+            ref={coverInputRef}
             type="file"
             id="coverImage"
-            name="coverImage"
             accept="image/*"
-            onChange={(e) => {
-              const file = e.target.files?.[0];
-              if (file) setCoverPreview(URL.createObjectURL(file));
-            }}
+            onChange={handleCoverSelect}
+            disabled={coverUploading}
+            style={{ display: "none" }}
           />
-          <span className="admin-field-hint">JPG ou PNG, até 8MB. Deixe em branco para manter a atual.</span>
+          <button
+            type="button"
+            className="btn btn-outline btn-sm"
+            onClick={() => coverInputRef.current?.click()}
+            disabled={coverUploading}
+          >
+            {coverUploading ? "Enviando…" : coverPreview ? "Trocar imagem" : "Escolher imagem"}
+          </button>
+          <span className="admin-field-hint">JPG ou PNG, até 10MB. O envio é imediato, direto para o armazenamento.</span>
+          {coverError && <p className="form-note form-note--error">{coverError}</p>}
         </div>
 
         <div className="field">
