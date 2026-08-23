@@ -38,7 +38,6 @@
 
     var pin       = cine.querySelector(".cine__pin");
     var heroLayer = cine.querySelector("[data-cine-hero]");
-    var heroText  = cine.querySelector("[data-cine-herotext]");
     var kitLayer  = cine.querySelector("[data-cine-kit]");
     var kitCap    = cine.querySelector("[data-cine-kitcap]");
     var cue       = cine.querySelector("[data-cine-cue]");
@@ -64,13 +63,6 @@
         "translateY(" + lerp(0, -5, eH) + "%) scale(" + lerp(1, 0.86, eH) +
         ") translateZ(" + lerp(0, -260, eH) + "px) rotateX(" + lerp(0, -7, eH) + "deg)";
       heroLayer.style.opacity = String(lerp(1, 0, range(p, 0.15, 0.62)));
-
-      // texto da hero some antes e sobe
-      if (heroText) {
-        var tHide = range(p, 0.0, 0.28);
-        heroText.style.opacity = String(lerp(1, 0, tHide));
-        heroText.style.transform = "translateY(" + lerp(0, -40, tHide) + "px)";
-      }
 
       // Camada 2 — kit emerge de baixo e assume
       var eK = easeOut(range(p, 0.22, 0.82));

@@ -39,23 +39,37 @@
   <div class="cine" id="hero" data-cine>
     <div class="cine__pin">
 
-      <!-- CAMADA 1 — vídeo da hero -->
+      <!-- CAMADA 1 — hero: faixa marrom (título) + vídeo + faixa marrom (texto/CTA) -->
       <div class="cine__layer cine__hero" data-cine-hero>
-        <video class="hero-video" autoplay muted loop playsinline preload="auto" aria-hidden="true">
-          <source src="assets/hero-croche.mp4" type="video/mp4" />
-        </video>
-        <div class="hero-bg" aria-hidden="true"></div>
-        <div class="container hero-inner" data-cine-herotext>
-          <p class="eyebrow hero-eyebrow">Atelier de Crochê · Florianópolis</p>
-          <h1 class="hero-title">
-            Feito à mão,<br /><em>feito pra você</em>
-          </h1>
-          <p class="hero-sub">
-            Uma nova coleção moldada entre a sofisticação do atelier e a leveza da vida
-            em Florianópolis. Cada peça nasce de tecidos cuidadosamente selecionados,
-            com acabamento artesanal e caimento pensado para o seu corpo.
-          </p>
-          <a href="#colecao" class="btn btn-solid">Ver Coleção</a>
+        <div class="hero-top">
+          <div class="container">
+            <p class="eyebrow hero-eyebrow">Atelier de Crochê · Florianópolis</p>
+            <h1 class="hero-title">
+              Feito à mão,<br /><em>feito pra você</em>
+            </h1>
+          </div>
+        </div>
+
+        <div class="hero-video-frame">
+          <video class="hero-video" autoplay muted loop playsinline preload="auto" aria-hidden="true">
+            <source src="assets/hero-croche.mp4" type="video/mp4" />
+          </video>
+          <!-- indicador de scroll -->
+          <div class="cine__scroll" data-cine-cue aria-hidden="true">
+            <span>role para ver a transição</span>
+            <span class="cine__scroll-line"></span>
+          </div>
+        </div>
+
+        <div class="hero-bottom">
+          <div class="container">
+            <p class="hero-sub">
+              Uma nova coleção moldada entre a sofisticação do atelier e a leveza da vida
+              em Florianópolis. Cada peça nasce de tecidos cuidadosamente selecionados,
+              com acabamento artesanal e caimento pensado para o seu corpo.
+            </p>
+            <a href="#colecao" class="btn btn-solid">Ver Coleção</a>
+          </div>
         </div>
       </div>
 
@@ -69,12 +83,6 @@
           <p class="eyebrow">Novidade · Enxoval de Bebê</p>
           <h2 class="cine__kit-title">Kit Bebê<br /><em>em Crochê</em></h2>
         </div>
-      </div>
-
-      <!-- indicador de scroll -->
-      <div class="cine__scroll" data-cine-cue aria-hidden="true">
-        <span>role para ver a transição</span>
-        <span class="cine__scroll-line"></span>
       </div>
 
     </div>
