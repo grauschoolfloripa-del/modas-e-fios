@@ -28,8 +28,8 @@ export default function Header() {
 
         <nav className={`nav${navOpen ? " open" : ""}`} aria-label="Navegação principal">
           <Link href="/loja" onClick={closeNav}>Loja</Link>
-          <Link href="/#servicos" onClick={closeNav}>Serviços</Link>
           <Link href="/#colecao" onClick={closeNav}>Coleção</Link>
+          <Link href="/cursos" onClick={closeNav}>Cursos</Link>
           <Link href="/#sobre" onClick={closeNav}>Sobre Nós</Link>
           <Link href="/#contato" onClick={closeNav}>Contato</Link>
         </nav>

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { formatPrice } from "@/lib/catalog";
+import { fulfillmentLabel } from "@/lib/orders";
 
 export const dynamic = "force-dynamic";
 
@@ -39,7 +40,9 @@ export default async function ContaPage() {
 
   const { data: orders } = await supabase
     .from("orders")
-    .select("id, status, amount_cents, created_at, products(title)")
+    .select(
+      "id, status, fulfillment_status, tracking_code, delivery_method, shipping_address, amount_cents, created_at, products(title, type)"
+    )
     .eq("user_id", user.id)
     .order("created_at", { ascending: false });
 
@@ -83,22 +86,44 @@ export default async function ContaPage() {
 
         <h3>Meus pedidos</h3>
         {orders && orders.length > 0 ? (
-          <div className="scroll-table">
-            <table className="orders-table">
-              <thead>
-                <tr><th>Data</th><th>Item</th><th>Valor</th><th>Status</th></tr>
-              </thead>
-              <tbody>
-                {orders.map((o) => (
-                  <tr key={o.id}>
-                    <td>{new Date(o.created_at).toLocaleDateString("pt-BR")}</td>
-                    <td>{o.products?.title}</td>
-                    <td>{formatPrice(o.amount_cents / 100)}</td>
-                    <td><span className={`order-status order-status--${o.status}`}>{o.status}</span></td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          <div className="account-orders">
+            {orders.map((o) => {
+              const isProduto = o.products?.type === "produto";
+              const addr = o.shipping_address;
+              return (
+                <div className="account-order-card" key={o.id}>
+                  <div className="account-order-head">
+                    <div>
+                      <p className="account-order-title">{o.products?.title}</p>
+                      <p className="account-order-date">
+                        {new Date(o.created_at).toLocaleDateString("pt-BR")} · {formatPrice(o.amount_cents / 100)}
+                      </p>
+                    </div>
+                    <div className="account-order-badges">
+                      <span className={`order-status order-status--${o.status}`}>{o.status}</span>
+                      {o.status === "approved" && (
+                        <span className={`order-status order-status--${o.fulfillment_status === "cancelado" ? "rejected" : "approved"}`}>
+                          {fulfillmentLabel(o.fulfillment_status)}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  {isProduto && o.status === "approved" && (
+                    <div className="account-order-delivery">
+                      {o.delivery_method === "envio" ? (
+                        <>
+                          <p>Envio para {addr?.cidade}/{addr?.estado}</p>
+                          {o.tracking_code && <p>Código de rastreio: <strong>{o.tracking_code}</strong></p>}
+                        </>
+                      ) : o.delivery_method === "retirada" ? (
+                        <p>Retirada em mãos, no atelier — combinamos o horário pelo WhatsApp.</p>
+                      ) : null}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
           </div>
         ) : (
           <p className="contact-text">Nenhum pedido ainda.</p>

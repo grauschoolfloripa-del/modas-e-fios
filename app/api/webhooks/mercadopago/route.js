@@ -119,7 +119,17 @@ export async function POST(request) {
   };
   const newStatus = amountMatches ? statusMap[payment.status] || order.status : "rejected";
 
-  await admin.from("orders").update({ status: newStatus, updated_at: new Date().toISOString() }).eq("id", order.id);
+  // acompanhamento do pedido segue o status do pagamento nesta transição
+  const fulfillmentByStatus = {
+    approved: "preparando",
+    rejected: "cancelado",
+    cancelled: "cancelado",
+    refunded: "cancelado",
+  };
+  const orderUpdate = { status: newStatus, updated_at: new Date().toISOString() };
+  if (fulfillmentByStatus[newStatus]) orderUpdate.fulfillment_status = fulfillmentByStatus[newStatus];
+
+  await admin.from("orders").update(orderUpdate).eq("id", order.id);
 
   await admin.from("payments").insert({
     order_id: order.id,

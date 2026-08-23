@@ -28,15 +28,33 @@ export async function POST(request) {
     return NextResponse.json({ error: "Requisição inválida." }, { status: 400 });
   }
   const productSlug = String(body.productSlug || "");
+  const customerName = typeof body.customerName === "string" ? body.customerName.trim() : "";
+  const phone = typeof body.phone === "string" ? body.phone.trim() : "";
+  const deliveryMethod = body.deliveryMethod === "retirada" ? "retirada" : body.deliveryMethod === "envio" ? "envio" : null;
+  const shippingAddress = body.shippingAddress && typeof body.shippingAddress === "object" ? body.shippingAddress : null;
 
   const { data: product } = await supabase
     .from("products")
-    .select("id, slug, title, price_cents, published")
+    .select("id, slug, type, title, price_cents, published")
     .eq("slug", productSlug)
     .single();
 
   if (!product || !product.published) {
     return NextResponse.json({ error: "Item não encontrado." }, { status: 404 });
+  }
+
+  // peça física: telefone e entrega são obrigatórios (curso não precisa)
+  if (product.type === "produto") {
+    if (!customerName || !phone || !deliveryMethod) {
+      return NextResponse.json({ error: "Preencha seus dados de contato e entrega." }, { status: 400 });
+    }
+    if (deliveryMethod === "envio") {
+      const required = ["cep", "rua", "numero", "bairro", "cidade", "estado"];
+      const missing = required.some((k) => !shippingAddress || !String(shippingAddress[k] || "").trim());
+      if (missing) {
+        return NextResponse.json({ error: "Preencha o endereço completo para o envio." }, { status: 400 });
+      }
+    }
   }
 
   const accessToken = await getSetting("mp_access_token");
@@ -59,12 +77,28 @@ export async function POST(request) {
       product_id: product.id,
       status: "pending",
       amount_cents: product.price_cents,
+      customer_name: customerName || null,
+      phone: phone || null,
+      delivery_method: deliveryMethod,
+      shipping_address: shippingAddress,
+      fulfillment_status: "aguardando_pagamento",
     })
     .select()
     .single();
 
   if (orderError || !order) {
     return NextResponse.json({ error: "Não foi possível criar o pedido." }, { status: 500 });
+  }
+
+  // guarda nome/telefone no perfil também, pra próxima compra já vir preenchido
+  if (customerName || phone) {
+    await supabase
+      .from("profiles")
+      .update({
+        ...(customerName ? { full_name: customerName } : {}),
+        ...(phone ? { phone } : {}),
+      })
+      .eq("id", user.id);
   }
 
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || request.nextUrl.origin;

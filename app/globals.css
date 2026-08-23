@@ -1424,3 +1424,85 @@ html.js-reveal .reveal-on-scroll.is-visible {
   .course-promo-media { aspect-ratio: 4 / 3; }
   .course-promo-benefits { grid-template-columns: 1fr; }
 }
+
+/* ============================================================
+   CHECKOUT — entrega (Fase 4)
+   ============================================================ */
+.checkout-delivery-options {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  margin-top: 4px;
+}
+.checkout-radio {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: 14px;
+  color: var(--cafe-escuro);
+  text-transform: none;
+  letter-spacing: normal;
+  border: var(--border-thin);
+  padding: 12px 14px;
+  cursor: pointer;
+}
+.checkout-radio input { width: 16px; height: 16px; }
+
+/* ============================================================
+   PEDIDOS — admin (linha expansível)
+   ============================================================ */
+.admin-order-row { cursor: pointer; }
+.admin-order-row:hover { background: #fff; }
+.admin-order-toggle { text-align: right; color: var(--muted, var(--fio-escuro)); font-size: 11px; }
+.admin-order-detail td { background: var(--croche-cru); padding: var(--sp-4); }
+.admin-order-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--sp-4);
+  font-size: 13.5px;
+}
+.admin-order-detail-label {
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--terra-caju);
+  margin-bottom: 6px;
+}
+.admin-order-detail-form select,
+.admin-order-detail-form input {
+  font-family: var(--font-body);
+  font-size: 13px;
+  padding: 8px 10px;
+  border: var(--border-thin);
+  background: #fff;
+}
+.admin-order-detail-form .admin-form-row { margin-bottom: var(--sp-2); }
+
+/* ============================================================
+   PEDIDOS — conta do cliente
+   ============================================================ */
+.account-orders { display: flex; flex-direction: column; gap: var(--sp-3); }
+.account-order-card { border: var(--border-thin); background: #fff; padding: var(--sp-4); }
+.account-order-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  flex-wrap: wrap;
+}
+.account-order-title { font-family: var(--font-display); font-size: 18px; }
+.account-order-date { font-size: 12px; color: var(--muted, var(--fio-escuro)); margin-top: 2px; }
+.account-order-badges { display: flex; gap: 8px; flex-wrap: wrap; }
+.account-order-delivery {
+  margin-top: var(--sp-3);
+  padding-top: var(--sp-3);
+  border-top: var(--border-thin);
+  font-size: 13px;
+  color: var(--fio-escuro);
+}
+.account-order-delivery p { margin-bottom: 4px; }
+.account-order-delivery p:last-child { margin-bottom: 0; }

@@ -3,12 +3,18 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-export default function BuyButton({ productSlug }) {
+export default function BuyButton({ productSlug, needsDelivery }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const router = useRouter();
 
   async function handleClick() {
+    // peça física: primeiro coleta telefone e forma de entrega
+    if (needsDelivery) {
+      router.push(`/checkout/${productSlug}`);
+      return;
+    }
+
     setLoading(true);
     setError("");
     try {

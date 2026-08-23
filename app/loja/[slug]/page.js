@@ -47,7 +47,7 @@ export default async function ProductPage({ params }) {
 
         <div className="catalog-detail-cta">
           {forSale ? (
-            <BuyButton productSlug={item.slug} />
+            <BuyButton productSlug={item.slug} needsDelivery={!isCourse} />
           ) : (
             <>
               <p className="catalog-form-intro">
