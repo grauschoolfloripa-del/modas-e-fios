@@ -13,8 +13,8 @@
   --fio-escuro:   #5C4033;
 
   /* Fontes */
-  --font-display: "Cormorant Garamond", Georgia, serif;
-  --font-body:    "DM Sans", system-ui, sans-serif;
+  --font-display: var(--font-display-family), Georgia, serif;
+  --font-body:    var(--font-body-family), system-ui, sans-serif;
 
   /* Espaçamento (base 8px) */
   --sp-1: 4px;
