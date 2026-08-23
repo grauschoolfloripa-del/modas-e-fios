@@ -1,6 +1,5 @@
 import { notFound } from "next/navigation";
 import { getAllSlugs, getBySlugAsync, formatPrice } from "@/lib/catalog";
-import { getSetting } from "@/lib/settings";
 import WaitlistForm from "@/app/components/WaitlistForm";
 import BuyButton from "@/app/components/BuyButton";
 
@@ -24,7 +23,7 @@ export default async function ProductPage({ params }) {
   if (!item) notFound();
 
   const isCourse = item.type === "curso";
-  const mpConfigured = Boolean(await getSetting("mp_access_token"));
+  const forSale = item.saleMode !== "espera";
 
   return (
     <section className="contact catalog-detail">
@@ -49,7 +48,7 @@ export default async function ProductPage({ params }) {
         </div>
 
         <div>
-          {mpConfigured ? (
+          {forSale ? (
             <BuyButton productSlug={item.slug} />
           ) : (
             <>

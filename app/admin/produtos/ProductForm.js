@@ -115,11 +115,20 @@ export default function ProductForm({ product, initialFiles }) {
           </div>
         )}
 
-        <div className="field field--checkbox">
-          <label>
-            <input type="checkbox" name="published" defaultChecked={product?.published ?? false} />
-            {" "}Publicado (visível na loja)
-          </label>
+        <div className="admin-form-row">
+          <div className="field">
+            <label htmlFor="saleMode">Modo de venda</label>
+            <select id="saleMode" name="saleMode" defaultValue={product?.sale_mode || "venda"}>
+              <option value="venda">À venda (mostra botão Comprar)</option>
+              <option value="espera">Lista de espera (ainda não vende)</option>
+            </select>
+          </div>
+          <div className="field field--checkbox" style={{ justifyContent: "flex-end" }}>
+            <label>
+              <input type="checkbox" name="published" defaultChecked={product?.published ?? false} />
+              {" "}Publicado (visível na loja)
+            </label>
+          </div>
         </div>
 
         <button type="submit" className="btn btn-solid" disabled={pending}>

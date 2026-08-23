@@ -48,6 +48,7 @@ export async function saveProduct(prevState, formData) {
   const accessDurationDays =
     accessType === "periodo" ? parseInt(formData.get("accessDurationDays"), 10) || null : null;
   const published = formData.get("published") === "on";
+  const saleMode = String(formData.get("saleMode") || "venda");
   const coverImageFile = formData.get("coverImage");
 
   if (!title) return { error: "Informe o título." };
@@ -68,6 +69,7 @@ export async function saveProduct(prevState, formData) {
     cover_class: "product-img--tote",
     access_type: accessType,
     access_duration_days: accessDurationDays,
+    sale_mode: saleMode,
     published,
     updated_at: new Date().toISOString(),
   };
